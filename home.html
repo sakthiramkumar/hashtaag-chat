@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat Application for Hashtaag</title>
+   <style>
+    div.container{
+      border: 1px solid #AAAAAA;
+      height: 500px;
+      width: 500px;
+      float: left;
+      position: relative;
+    }
+
+    div.form{
+      position: relative;
+      z-index: 1;
+      background: #FFFFFF;
+      max-width: 360px;
+      margin: 30% 5%;
+      padding: 45px;
+      text-align: center;
+      box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    }
+    ul {
+    margin-bottom: 14px;
+    list-style: none;
+    }
+    div.buttons-container{
+      padding: 2px;
+      border-bottom: 1px solid #AAAAAA;
+      height: 22px;
+    }
+    #users-list li { 
+      width: 93%; 
+      height: 30px;  
+      margin: 0 0 7px 0; 
+      cursor: pointer;
+      padding-left: 22px;
+      padding-top: 5px;
+      background: #F7F5F4 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABMklEQVQ4T63UvytGcRTH8dfDwKAYUIrCaGSQwT9BSspmsymTslBSZotNFouB/8Agiww2xUT5kUksJB3dR7ru93nule90u/dz3ueczznfW/PPp1aC14eJTHeCu0YxjYCt2MAS4jnOO7awgo8icCPgehZYFLeKtSrAzqy19kR7r+jFS/57qsJJHDfxN3w9LQscLxLngkdxXhbYhht0J6q8xwDeygJDN4/dBHAW+1WGUtfOYBND2YtrLOMg5W+zxY5JPqI/A4QNPXj4C3AKe7jFGSL5GOLmRMtHVVqezjyq35B8bNyY0ByWGcogLtDRZA+fMZJtw7e0yMMdLJT4aYRkG4s/tXlgC57QVRIYA4vBJSscxlVJWF0WCx7T/zr5CsOT1DKn8szhMgWsWNxvebPFrpzgE0dmLBU8Zk8nAAAAAElFTkSuQmCC) 0px center no-repeat;
+      }
+    #chat-box li{
+      width: 93%; 
+      height: 30px;  
+      margin: 0 0 7px 0; 
+      padding: 2% 2% 2% 23px;
+      background: #DDFFFF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABeklEQVQ4T63Uv0sdQRDA8e/MPAPBRpSkCCZ/gLWgWCQgpEobK2uFFLG0T6cgWFhpYWVjIylSWViYRK0kTVSwCBZK5BWSLnC3M7LC6fMXvqe35bHz2dmZ2xFqXnKPp41G4y3OaIo0APTlfSraFGQPZ6Ok/AH4zfibYENVPwkyDfQ/kPxRELPuvgSkam8r+NrM1ggGO6qCsJNS+ggc57gKfGNqP9vI6r6zjpKnEeAkg2pmWwRDHWV2u3jfU0rvxMzGCVaehF0VcExEZF1F39cBevg3MbUzoKcOEDjNYG651gT+z2Bu96uawD8ZzA0Zrwlcli66hl19uwYw1HXw4sc2tUVg8onoQvI0Vb2UZyKypqIfHoN6+NeIGAPK1rf83NSaQHcHaCHITOnll2pAXIJmNkGQJ0c76x+wmjzNAYetARXYa2r7wMurVyQHITGfrxERL4AQkaYm/V1Q7Obvd518Aarq54gYVdG/Qeyb22ZB8audVB8asI8xrsWcA3nZdN9XinJCAAAAAElFTkSuQmCC) 0px center no-repeat;
+    }
+    #chat-box-form{
+      bottom: 0;
+      width: 100%;
+      padding: 5px;
+      position: absolute;
+      display: inline-block;
+      float: left;
+    }
+    #chat-box-form input { 
+      padding: 10px; 
+      width: 80%; 
+      margin-right: .5%; }
+    #chat-box-form button { 
+      width: 13%; 
+      padding: 10px; }
+    span#recipient-user {
+      text-align: center;
+      background: aliceblue;
+      display: block;
+      width: 100%;
+      height: 20px;
+    }
+    </style>
+  </head>
+  <body>
+  <div class = 'container' id="user-login">
+    <div class = "form">
+      <form id="user-login-form" action="">
+        <input id="username" autocomplete="off" placeholder="Enter Your Name" />
+        <br/>
+        <button >Enter</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class = 'container' id="users-list">
+    <div class="buttons-container">
+      <button style="float:right;" id = "users-list-back">Logout</button>
+    </div>
+    <br/>
+    <ul id = 'users-list-ul'>
+
+    </ul>
+  </div>
+  
+  <div class = 'container' id="chat-box">
+    <div class="buttons-container">
+      <button style="float:right;" id = "chat-box-back">Back</button>
+    </div>
+    <br/> 
+    <span id='recipient-user'></span>
+    <ul id="chat-messages"></ul>
+    <form id = "chat-box-form" action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+  var socket = io();
+  var appJson = new Object();
+  $('#user-login-form').submit(function(){
+    
+    $.ajax({
+      url : '/register',
+      dataType : 'json',
+      type: 'post',
+      data: {
+        username : $("#username").val()
+      },
+      success : function(data, textStatus, jQxhr){
+        handleUserRegistered(data);
+      },
+      error : function( jqXhr, textStatus, errorThrown ){
+              console.log( errorThrown );
+          }
+    });
+    return false;
+  });
+
+  var handleUserRegistered = function(data){
+    if(data.success){
+      appJson.current_user = data.name;
+      appJson.messages = [];
+      socket.emit('registration-success', data);
+      showUsersList();
+    }
+    else{
+      alert(data.message);
+    }
+  }
+  socket.on('users-list', function(users){
+     $('#users-list-ul').empty();
+     if($('#chat-box').is(":visible") && ($.inArray($('#recipient-user').text(), users))==-1){
+          var msg = {
+            sender : $('#recipient-user').text(),
+            message : "************disconnected************",
+            recipient : appJson.current_user,
+            time : new Date()
+          }
+          addUserChatMessagesToChatbox(msg);
+          $("#chat-box-form button").prop( "disabled", true );
+        }
+    for (var i = users.length - 1; i >= 0; i--) {
+        if(users[i] != appJson.current_user)
+          $('#users-list-ul').append($('<li>').text(users[i]));
+        if(appJson.messages[users[i]]){
+          delete appJson.messages[users[i]];  
+        }
+    }
+   
+  });
+  $('#chat-box-form').submit(function(){
+      var chat_message = {
+        sender : appJson.current_user,
+        message : $('#m').val(),
+        recipient : $('#recipient-user').text()
+      }
+      socket.emit('chat message', chat_message);
+      $('#m').val('');
+      return false;
+    });
+
+  socket.on('chat message', function(msg){
+    addMessagesToAppJson(msg);
+    if($('#recipient-user').text() == msg.sender || $('#recipient-user').text() == msg.recipient)
+      addUserChatMessagesToChatbox(msg);
+  });
+
+  $("#users-list-ul").on('click', 'li', function(){
+    startChatWithUser($(this).text());
+  });
+
+  var startChatWithUser = function(user){
+    $('#chat-messages').empty();
+    if(user != appJson.current_user){
+      showChatBox();
+    if(appJson.messages[user]){
+      for (var i = appJson.messages[user].length - 1; i >= 0; i--) {
+        addUserChatMessagesToChatbox(appJson.messages[user][i]);
+      }
+    }
+    $('#recipient-user').text(user);
+    }
+    else{
+      alert('you cannot chat with yourself');
+    }
+  }
+
+  var addUserChatMessagesToChatbox = function(msg){
+    var message = '';
+    if(msg.sender == appJson.current_user){
+      message = msg.time + '  ->  ' + msg.sender + '(me)  ->  ' + msg.message;
+    }
+    else{
+      message = msg.time + '  ->  ' + msg.sender + '  ->  ' + msg.message;
+    }
+    
+      $('#chat-messages').append($('<li>').text(message));
+  }
+
+  var addMessagesToAppJson = function(msg){
+    var recipient_user = msg.sender == appJson.current_user ? msg.recipient : msg.sender;
+    if(!appJson.messages[recipient_user])
+      appJson.messages[recipient_user] = [];
+    appJson.messages[recipient_user].push(msg);
+  }
+
+
+
+    $('#users-list-back').click(function(){
+        socket.emit('unregister', appJson.current_user);
+        showLoginForm();       
+    });
+    $('#chat-box-back').click(function(){
+       showUsersList();
+    });
+    var showLoginForm = function(){
+       $('#users-list').hide();
+        $("#chat-box").hide();
+        $('#user-login').show();
+    }
+
+    var showUsersList = function(){
+        $('#users-list').show();
+        $("#chat-box").hide();
+        $('#user-login').hide();
+    }
+
+    var showChatBox = function(){
+      $('#user-login').hide();
+      $('#users-list').hide();
+      $('#chat-box').show();
+      $("#chat-box-form button").prop( "disabled", false );
+    }
+    $( document ).ready(function() {
+      $('body').hide();
+      $(window).load(function(){
+          showLoginForm();
+          $('body').show();
+      });
+    });
+</script>
+</body>
+</html>
